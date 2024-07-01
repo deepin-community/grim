@@ -1,5 +1,67 @@
-template-repository (1.0-1) unstable; urgency=medium
+grim (1.4.0+ds-2) unstable; urgency=medium
 
-  * Initial release
+  * Fix d/watch file
 
- -- Tsic404 <liuheng@deepin.org>  Sat, 28 Jan 2023 13:46:49 +0800
+ -- Birger Schacht <birger@debian.org>  Fri, 08 Apr 2022 11:03:07 +0200
+
+grim (1.4.0+ds-1) unstable; urgency=medium
+
+  * New upstream release
+  * Update build dependencies to reflect switch to pixman
+  * Drop filenamemangle option from d/watch
+  * Update year range in d/copyright stanza for debian/*
+
+ -- Birger Schacht <birger@debian.org>  Thu, 17 Feb 2022 13:00:53 +0100
+
+grim (1.3.2+ds-1) unstable; urgency=medium
+
+  * New upstream release
+  * Bump standards version to 4.6.0.1 (no changes required)
+
+ -- Birger Schacht <birger@debian.org>  Sat, 06 Nov 2021 09:39:01 +0100
+
+grim (1.3.1+ds-1) unstable; urgency=medium
+
+  * New upstream release
+  * Bump standards version to 4.5.0 (no changes required)
+  * Update uploader address
+  * Bump debhelper compat version to 13
+  * Add Bug-Tracking to upstream/metadata
+
+ -- Birger Schacht <birger@debian.org>  Wed, 22 Jul 2020 12:04:47 +0200
+
+grim (1.3.0+ds-1) unstable; urgency=medium
+
+  * New upstream release
+  * Add a d/gbp.conf
+  * Bump standards version to 4.4.1 (no changes required)
+  * Update Vcs-* and Maintainer fields and add Uploader
+  * Add d/upstream/signing-key.asc and add pgpgsigurlmange to d/watch
+
+ -- Birger Schacht <birger@rantanplan.org>  Tue, 21 Jan 2020 19:05:40 +0100
+
+grim (1.2.0+ds-1) unstable; urgency=medium
+
+  * New upstream release
+  * d/control:
+   + Add Vcs-* fields
+   + Bump standards version to 4.4.0
+  * d/gitlab-ci.yml: Drop custom config, rely on "Salsa CI Team"
+
+ -- Birger Schacht <birger@rantanplan.org>  Sun, 21 Jul 2019 22:07:07 +0200
+
+grim (1.1+ds-1) unstable; urgency=medium
+
+  * New upstream release
+  * Replace debhelper with debhelper-compat
+  * Bump standards version
+  * Remove upstreamed patch
+  * Cleanup the package's git repository
+
+ -- Birger Schacht <birger@rantanplan.org>  Sun, 10 Feb 2019 12:43:22 +0100
+
+grim (1.0+ds-1) unstable; urgency=medium
+
+  * Initial release. (Closes: #915202)
+
+ -- Birger Schacht <birger@rantanplan.org>  Tue, 04 Dec 2018 20:43:04 +0100
