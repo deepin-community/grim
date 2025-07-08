@@ -1,15 +1,28 @@
-Source: template-repository
-Section: unknown
+Source: grim
+Section: x11
 Priority: optional
-Maintainer: Tsic404 <liuheng@deepin.org>
-Build-Depends: debhelper (>= 11)
-Standards-Version: 4.1.3
-Homepage: https://github.com/deepin-community/template-repository
-#Vcs-Browser: https://salsa.debian.org/debian/deepin-community-template-repository
-#Vcs-Git: https://salsa.debian.org/debian/deepin-community-template-repository.git
+Maintainer: Sway and related packages team <team+swaywm@tracker.debian.org>
+Uploaders: Birger Schacht <birger@debian.org>
+Build-Depends: debhelper-compat (= 13),
+               libpng-dev,
+               libpixman-1-dev,
+               libwayland-dev,
+               meson,
+               pkg-config,
+               scdoc,
+               wayland-protocols (>= 1.14),
+Standards-Version: 4.6.0.1
+Homepage: https://wayland.emersion.fr/grim/
+Rules-Requires-Root: no
+Vcs-Git: https://salsa.debian.org/swaywm-team/grim.git
+Vcs-Browser: https://salsa.debian.org/swaywm-team/grim
 
-Package: template-repository
+Package: grim
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Multi-Arch: foreign
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Description: command-line utility to make screenshots of Wayland desktops
+ grim is a command-line utility to take screenshots of Wayland desktops. For now
+ it requires support for the screencopy protocol to work. Support for the
+ xdg-output protocol is optional, but improves fractional scaling support.
+ grim will write a PNG to a file or to stdout.
