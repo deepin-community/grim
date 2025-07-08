@@ -56,8 +56,11 @@ output instead.
 *-c*
 	Include cursors in the screenshot.
 
+*-T* <identifier>
+	Set the identifier of a foreign toplevel handle to capture.
+
 # AUTHORS
 
 Maintained by Simon Ser <contact@emersion.fr>, who is assisted by other
 open-source contributors. For more information about grim development, see
-https://github.com/emersion/grim.
+<https://gitlab.freedesktop.org/emersion/grim>.

@@ -9,6 +9,8 @@
 #include "output-layout.h"
 #include "render.h"
 
+#include "wlr-screencopy-unstable-v1-protocol.h"
+
 static pixman_format_code_t get_pixman_format(enum wl_shm_format wl_fmt) {
 	switch (wl_fmt) {
 #if GRIM_LITTLE_ENDIAN
@@ -87,6 +89,15 @@ static pixman_format_code_t get_pixman_format(enum wl_shm_format wl_fmt) {
 	}
 }
 
+bool is_format_supported(enum wl_shm_format fmt) {
+	return get_pixman_format(fmt) != 0;
+}
+
+uint32_t get_format_min_stride(enum wl_shm_format fmt, uint32_t width) {
+	uint32_t bits_per_pixel = PIXMAN_FORMAT_BPP(get_pixman_format(fmt));
+	return ((width * bits_per_pixel + 0x1f) >> 5) * sizeof(uint32_t);
+}
+
 static void compute_composite_region(const struct pixman_f_transform *out2com,
 		int output_width, int output_height, struct grim_box *dest,
 		bool *grid_aligned) {
@@ -131,13 +142,19 @@ static void compute_composite_region(const struct pixman_f_transform *out2com,
 
 pixman_image_t *render(struct grim_state *state, struct grim_box *geometry,
 		double scale) {
+	int common_width = geometry->width * scale;
+	int common_height = geometry->height * scale;
 	pixman_image_t *common_image = pixman_image_create_bits(PIXMAN_a8r8g8b8,
-		geometry->width * scale, geometry->height * scale,
-		NULL, 0);
+		common_width, common_height, NULL, 0);
+	if (!common_image) {
+		fprintf(stderr, "failed to create image with size: %d x %d\n",
+			common_width, common_height);
+		return NULL;
+	}
 
-	struct grim_output *output;
-	wl_list_for_each(output, &state->outputs, link) {
-		struct grim_buffer *buffer = output->buffer;
+	struct grim_capture *capture;
+	wl_list_for_each(capture, &state->captures, link) {
+		struct grim_buffer *buffer = capture->buffer;
 		if (buffer == NULL) {
 			continue;
 		}
@@ -149,18 +166,17 @@ pixman_image_t *render(struct grim_state *state, struct grim_box *geometry,
 			return NULL;
 		}
 
-		int32_t output_x = output->logical_geometry.x - geometry->x;
-		int32_t output_y = output->logical_geometry.y - geometry->y;
-		int32_t output_width = output->logical_geometry.width;
-		int32_t output_height = output->logical_geometry.height;
+		int32_t output_x = capture->logical_geometry.x - geometry->x;
+		int32_t output_y = capture->logical_geometry.y - geometry->y;
+		int32_t output_width = capture->logical_geometry.width;
+		int32_t output_height = capture->logical_geometry.height;
 
-		int32_t raw_output_width = output->geometry.width;
-		int32_t raw_output_height = output->geometry.height;
-		apply_output_transform(output->transform,
-			&raw_output_width, &raw_output_height);
+		int32_t raw_output_width = buffer->width;
+		int32_t raw_output_height = buffer->height;
+		apply_output_transform(capture->transform, &raw_output_width, &raw_output_height);
 
-		int output_flipped_x = get_output_flipped(output->transform);
-		int output_flipped_y = output->screencopy_frame_flags &
+		int output_flipped_x = get_output_flipped(capture->transform);
+		int output_flipped_y = capture->screencopy_frame_flags &
 			ZWLR_SCREENCOPY_FRAME_V1_FLAGS_Y_INVERT ? -1 : 1;
 
 		pixman_image_t *output_image = pixman_image_create_bits(
@@ -176,14 +192,14 @@ pixman_image_t *render(struct grim_state *state, struct grim_box *geometry,
 		struct pixman_f_transform out2com;
 		pixman_f_transform_init_identity(&out2com);
 		pixman_f_transform_translate(&out2com, NULL,
-			-(double)output->geometry.width / 2,
-			-(double)output->geometry.height / 2);
+			-(double)buffer->width / 2,
+			-(double)buffer->height / 2);
 		pixman_f_transform_scale(&out2com, NULL,
 			(double)output_width / raw_output_width,
 			(double)output_height * output_flipped_y / raw_output_height);
 		pixman_f_transform_rotate(&out2com, NULL,
-			round(cos(get_output_rotation(output->transform))),
-			round(sin(get_output_rotation(output->transform))));
+			round(cos(get_output_rotation(capture->transform))),
+			round(sin(get_output_rotation(capture->transform))));
 		pixman_f_transform_scale(&out2com, NULL, output_flipped_x, 1);
 		pixman_f_transform_translate(&out2com, NULL,
 			(double)output_width / 2,
@@ -230,10 +246,10 @@ pixman_image_t *render(struct grim_state *state, struct grim_box *geometry,
 		}
 
 		bool overlapping = false;
-		struct grim_output *other_output;
-		wl_list_for_each(other_output, &state->outputs, link) {
-			if (output != other_output && intersect_box(&output->logical_geometry,
-					&other_output->logical_geometry)) {
+		struct grim_capture *other_capture;
+		wl_list_for_each(other_capture, &state->captures, link) {
+			if (capture != other_capture && intersect_box(&capture->logical_geometry,
+					&other_capture->logical_geometry)) {
 				overlapping = true;
 			}
 		}

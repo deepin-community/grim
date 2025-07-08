@@ -1,27 +1,30 @@
-#define _XOPEN_SOURCE 500
 #include <limits.h>
 #include <math.h>
 
 #include "output-layout.h"
 #include "grim.h"
 
-void get_output_layout_extents(struct grim_state *state, struct grim_box *box) {
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+void get_capture_layout_extents(struct grim_state *state, struct grim_box *box) {
 	int32_t x1 = INT_MAX, y1 = INT_MAX;
 	int32_t x2 = INT_MIN, y2 = INT_MIN;
 
-	struct grim_output *output;
-	wl_list_for_each(output, &state->outputs, link) {
-		if (output->logical_geometry.x < x1) {
-			x1 = output->logical_geometry.x;
+	struct grim_capture *capture;
+	wl_list_for_each(capture, &state->captures, link) {
+		if (capture->logical_geometry.x < x1) {
+			x1 = capture->logical_geometry.x;
 		}
-		if (output->logical_geometry.y < y1) {
-			y1 = output->logical_geometry.y;
+		if (capture->logical_geometry.y < y1) {
+			y1 = capture->logical_geometry.y;
 		}
-		if (output->logical_geometry.x + output->logical_geometry.width > x2) {
-			x2 = output->logical_geometry.x + output->logical_geometry.width;
+		if (capture->logical_geometry.x + capture->logical_geometry.width > x2) {
+			x2 = capture->logical_geometry.x + capture->logical_geometry.width;
 		}
-		if (output->logical_geometry.y + output->logical_geometry.height > y2) {
-			y2 = output->logical_geometry.y + output->logical_geometry.height;
+		if (capture->logical_geometry.y + capture->logical_geometry.height > y2) {
+			y2 = capture->logical_geometry.y + capture->logical_geometry.height;
 		}
 	}
 
@@ -57,10 +60,10 @@ int get_output_flipped(enum wl_output_transform transform) {
 }
 
 void guess_output_logical_geometry(struct grim_output *output) {
-	output->logical_geometry.x = output->geometry.x;
-	output->logical_geometry.y = output->geometry.y;
-	output->logical_geometry.width = output->geometry.width / output->scale;
-	output->logical_geometry.height = output->geometry.height / output->scale;
+	output->logical_geometry.x = output->fallback_x;
+	output->logical_geometry.y = output->fallback_y;
+	output->logical_geometry.width = output->mode_width / output->scale;
+	output->logical_geometry.height = output->mode_height / output->scale;
 	apply_output_transform(output->transform,
 		&output->logical_geometry.width,
 		&output->logical_geometry.height);
