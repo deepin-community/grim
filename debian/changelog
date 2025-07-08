@@ -1,3 +1,9 @@
+grim (1.5.0+ds-0deepin1) UNRELEASED; urgency=medium
+
+  * New upstream release
+
+ -- Cryolitia <cryolitia@deepin.org>  Tue, 08 Jul 2025 15:43:45 +0800
+
 grim (1.4.0+ds-2) unstable; urgency=medium
 
   * Fix d/watch file
